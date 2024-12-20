@@ -1,5 +1,5 @@
 
-namespace CandidateApp
+namespace CandidateApp.API
 {
     public class Program
     {
