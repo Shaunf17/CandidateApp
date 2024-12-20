@@ -1,0 +1,10 @@
+<h2>Add Skill to Candidate</h2>
+<form (submit)="addSkill()">
+  <label for="candidateID">Candidate ID:</label>
+  <input type="number" [(ngModel)]="candidateID" name="candidateID" required />
+
+  <label for="skillID">Skill ID:</label>
+  <input type="number" [(ngModel)]="skillID" name="skillID" required />
+
+  <button type="submit">Add Skill</button>
+</form>
