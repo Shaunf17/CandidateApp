@@ -1,0 +1,28 @@
+<div class="container mt-4">
+    <h2>Candidate List</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Surname</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let candidate of candidates">
+                <td>{{ candidate.id }}</td>
+                <td>{{ candidate.firstName }}</td>
+                <td>{{ candidate.surname }}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" (click)="editCandidate(candidate)">
+                        Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" (click)="deleteCandidate(candidate.id)">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

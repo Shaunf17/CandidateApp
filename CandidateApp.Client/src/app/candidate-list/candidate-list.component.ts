@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { CandidateService } from '../../services/candidate.service';
+import { CandidateService } from '../../app/services/candidate.service';
 
 @Component({
   selector: 'app-candidate-list',
+  standalone: false,
+  
   templateUrl: './candidate-list.component.html',
-  styleUrls: ['./candidate-list.component.css']
+  styleUrl: './candidate-list.component.css'
 })
 export class CandidateListComponent implements OnInit {
   candidates: any[] = [];
@@ -12,12 +14,20 @@ export class CandidateListComponent implements OnInit {
   constructor(private candidateService: CandidateService) { }
 
   ngOnInit(): void {
-    this.fetchCandidates();
+    this.loadCandidates();
   }
 
-  fetchCandidates(): void {
-    this.candidateService.getCandidatesWithSkills().subscribe((data) => {
+  loadCandidates(): void {
+    this.candidateService.getCandidates().subscribe((data) => {
       this.candidates = data;
     });
+  }
+
+  editCandidate(candidate: any): void {
+
+  }
+
+  deleteCandidate(id: any): void {
+
   }
 }
