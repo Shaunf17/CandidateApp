@@ -13,8 +13,7 @@ import { Subscription } from 'rxjs';
 })
 export class CandidateListComponent implements OnInit, OnDestroy {
   expandedCandidate: Candidate | null = null;
-  mainColumns: string[] = ['id', 'firstName', 'surname', 'dateOfBirth', 'address1', 'town', 'country', 'postCode',
-    'phoneHome', 'phoneMobile', 'phoneWork', 'createdDate', 'updatedDate', 'actions'];
+  mainColumns: string[] = ['firstName', 'surname', 'dateOfBirth', 'address1', 'town', 'country', 'phoneMobile', 'actions'];
   dataSource = new MatTableDataSource<Candidate>([]);
   private subscriptions: Subscription = new Subscription();
 
@@ -35,12 +34,20 @@ export class CandidateListComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.dataSource.data = data;
         this.dataSource.paginator = this.paginator;
+        console.log('Candidates loaded:', data);
       },
       error: (err) => {
         console.error('Failed to load candidates', err);
       }
     });
     this.subscriptions.add(candidatesSubscription);
+  }
+
+  getCandidateSkills(candidate: Candidate): string {
+    if (!candidate.skills || candidate.skills.length === 0) {
+      return 'None';
+    }
+    return candidate.skills.map(skill => skill.name).join(', ');
   }
 
   toggleRow(candidate: Candidate): void {

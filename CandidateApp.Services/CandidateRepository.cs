@@ -20,28 +20,56 @@ namespace CandidateApp.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT * FROM Candidate", connection);
+                var query = @"
+                            SELECT c.*, s.Name AS SkillName, s.ID AS SkillID, s.CreatedDate AS SkillCreatedDate, s.UpdatedDate AS SkillUpdatedDate
+                            FROM Candidate c
+                            LEFT JOIN CandidateSkill cs ON c.ID = cs.CandidateID
+                            LEFT JOIN Skill s ON cs.SkillID = s.ID";
+
+                var command = new SqlCommand(query, connection);
                 using (var reader = command.ExecuteReader())
                 {
+                    var candidateDictionary = new Dictionary<int, Candidate>();
+
                     while (reader.Read())
                     {
-                        candidates.Add(new Candidate
+                        var candidateId = (int)reader["ID"];
+                        if (!candidateDictionary.TryGetValue(candidateId, out var candidate))
                         {
-                            ID = (int)reader["ID"],
-                            FirstName = reader["FirstName"].ToString(),
-                            Surname = reader["Surname"].ToString(),
-                            DateOfBirth = (DateTime)reader["DateOfBirth"],
-                            Address1 = reader["Address1"].ToString(),
-                            Town = reader["Town"].ToString(),
-                            Country = reader["Country"].ToString(),
-                            PostCode = reader["PostCode"].ToString(),
-                            PhoneHome = reader["PhoneHome"].ToString(),
-                            PhoneMobile = reader["PhoneMobile"].ToString(),
-                            PhoneWork = reader["PhoneWork"].ToString(),
-                            CreatedDate = (DateTime)reader["CreatedDate"],
-                            UpdatedDate = (DateTime)reader["UpdatedDate"]
-                        });
+                            candidate = new Candidate
+                            {
+                                ID = candidateId,
+                                FirstName = reader["FirstName"].ToString(),
+                                Surname = reader["Surname"].ToString(),
+                                DateOfBirth = (DateTime)reader["DateOfBirth"],
+                                Address1 = reader["Address1"].ToString(),
+                                Town = reader["Town"].ToString(),
+                                Country = reader["Country"].ToString(),
+                                PostCode = reader["PostCode"].ToString(),
+                                PhoneHome = reader["PhoneHome"].ToString(),
+                                PhoneMobile = reader["PhoneMobile"].ToString(),
+                                PhoneWork = reader["PhoneWork"].ToString(),
+                                CreatedDate = (DateTime)reader["CreatedDate"],
+                                UpdatedDate = (DateTime)reader["UpdatedDate"],
+                                Skills = new List<Skill>()
+                            };
+                            candidateDictionary.Add(candidateId, candidate);
+                        }
+
+                        // Add the skill if available
+                        if (reader["SkillID"] != DBNull.Value)
+                        {
+                            candidate.Skills.Add(new Skill
+                            {
+                                ID = (int)reader["SkillID"],
+                                Name = reader["SkillName"].ToString(),
+                                CreatedDate = (DateTime)reader["SkillCreatedDate"],
+                                UpdatedDate = (DateTime)reader["SkillUpdatedDate"]
+                            });
+                        }
                     }
+
+                    candidates = candidateDictionary.Values.ToList();
                 }
             }
 

@@ -23,11 +23,7 @@ button {
   color: #555;
 }
 
-  .skills h4 {
-    margin: 5px 0;
-  }
+.skills h4 {
+  margin: 5px 0;
+}
 
-  .skills ul {
-    padding-left: 20px;
-    margin: 0;
-  }
