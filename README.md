@@ -36,6 +36,14 @@ dotnet build
 dotnet run
 ```
 
+### 2.1. (Optional) Replace Connectionstring in `appsettings.json`
+
+```bash
+"ConnectionStrings": {
+  "DefaultConnection": "Your Connection String"
+},
+```
+
 ### 3. Setup Frontend (Angular)
 
 ```bash
@@ -47,7 +55,7 @@ ng serve
 ```
 
 ### 4. Connect Frontend to Backend
-Ensure that the Angular frontend is configured to call the correct Web API endpoint. This can be found in `environment.ts`. This default value uses the port declared in `appsettings.json` within `CandidateAppAPI`
+Ensure that the Angular frontend is configured to call the correct Web API endpoint. This can be found in `environment.ts`. This default value uses the port declared in `launchSettings.json` within `CandidateAppAPI`
 
 ```
 export const environment = {
