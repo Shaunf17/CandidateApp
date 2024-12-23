@@ -157,7 +157,7 @@ namespace CandidateApp.Services
                 command.Parameters.AddWithValue("@PhoneHome", candidate.PhoneHome);
                 command.Parameters.AddWithValue("@PhoneMobile", candidate.PhoneMobile);
                 command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork);
-                command.Parameters.AddWithValue("@UpdatedDate", candidate.UpdatedDate);
+                command.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
                 command.Parameters.AddWithValue("@ID", candidate.ID);
                 command.ExecuteNonQuery();
             }
