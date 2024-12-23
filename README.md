@@ -63,3 +63,7 @@ export const environment = {
   apiUrl: 'https://localhost:7294/api'
 };
 ```
+
+## Swagger Documentation
+
+Navigating to `https://localhost:7294/swagger` (or whichever port is set for API) will take you to the swagger API page
