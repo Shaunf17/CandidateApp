@@ -21,5 +21,6 @@ namespace CandidateApp.Domain.Models
         public string PhoneWork { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public List<Skill> Skills { get; set; }
     }
 }
