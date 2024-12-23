@@ -51,19 +51,18 @@
             </td>
         </ng-container>
 
-        <!-- Skills Column -->
-        <ng-container matColumnDef="skills">
-        <td mat-cell *matCellDef="let candidate" colspan="12" class="skills-row" [ngStyle]="{'border-top': 'none'}">
-            <div *ngIf="candidate.skills">
-                <strong>Skills:</strong>
-                {{ getCandidateSkills(candidate) }}
-            </div>
-        </td>
-        </ng-container>
-
         <!-- Main Row -->
         <tr mat-header-row *matHeaderRowDef="mainColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: mainColumns;" class="candidate-row"></tr>
+
+        <!-- Skills Row -->
+        <ng-container matColumnDef="skills">
+            <td mat-cell *matCellDef="let candidate" [attr.colspan]="mainColumns.length" class="skill">
+                <div *ngIf="candidate.skills">
+                    <strong>Skills:</strong> {{ getCandidateSkills(candidate) }}
+                </div>
+            </td>
+        </ng-container>
         <tr mat-row *matRowDef="let row; columns: ['skills'];" class="skills-row"></tr>
     </table>
 

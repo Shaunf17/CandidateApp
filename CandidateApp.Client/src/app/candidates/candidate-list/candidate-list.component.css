@@ -14,16 +14,12 @@ button {
   margin-right: 8px;
 }
 
-.expanded-row {
-  background-color: #f9f9f9;
+.skill {
+    /*padding-left: 20px !important;*/
+    padding-bottom: 20px !important;
 }
 
-.skills {
-  padding-left: 20px;
-  color: #555;
+.candidate-row td {
+    border-bottom: none;
+    margin-bottom: 0px;
 }
-
-.skills h4 {
-  margin: 5px 0;
-}
-
