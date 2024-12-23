@@ -3,5 +3,16 @@
 }
 
 mat-toolbar {
-  font-size: 1.5rem;
+  background: linear-gradient(45deg, #9c27b0, #673ab7);
+  color: white;
+}
+
+mat-toolbar a {
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  transition: text-shadow 0.3s ease-in-out;
+}
+
+mat-toolbar a:hover {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 1);
 }
