@@ -33,19 +33,5 @@ namespace CandidateApp.API.Controllers
 
             return Ok();
         }
-
-        [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Candidate candidate)
-        {
-            if (candidate == null || candidate.ID != id) return BadRequest();
-
-            var existingCandidate = _candidateRepository.GetCandidateById(id);
-            if (existingCandidate == null) return NotFound();
-
-            candidate.UpdatedDate = DateTime.UtcNow;
-            _candidateRepository.UpdateCandidate(candidate);
-
-            return Ok();
-        }
     }
 }

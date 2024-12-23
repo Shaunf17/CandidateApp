@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
-import { Router } from '@angular/router';
 import { CandidateService } from '../../services/candidate.service';
 import { Candidate } from '../../models/candidate';
 import { Subscription } from 'rxjs';
@@ -49,6 +48,10 @@ export class CandidateListComponent implements OnInit, OnDestroy {
       return 'None';
     }
     return candidate.skills.map(skill => skill.name).join(', ');
+  }
+
+  toggleRow(candidate: Candidate): void {
+    this.expandedCandidate = this.expandedCandidate === candidate ? null : candidate;
   }
 
   editCandidate(candidate: Candidate): void {

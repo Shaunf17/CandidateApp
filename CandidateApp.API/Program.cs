@@ -15,7 +15,6 @@ namespace CandidateApp.API
 
             // Register the repository with the connection string
             builder.Services.AddScoped<ICandidateRepository>(sp => new CandidateRepository(connectionString));
-            builder.Services.AddScoped<ISkillRepository>(sp => new SkillRepository(connectionString));
 
             builder.Services.AddControllers();
 
@@ -54,6 +53,7 @@ namespace CandidateApp.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
 
             app.MapControllers();
 

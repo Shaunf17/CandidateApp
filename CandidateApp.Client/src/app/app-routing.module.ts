@@ -5,8 +5,11 @@ import { CandidateFormComponent } from './candidates/candidate-form/candidate-fo
 
 const routes: Routes = [
   { path: '', redirectTo: '/candidates', pathMatch: 'full' },
-  { path: 'candidates', component: CandidateListComponent },
-  { path: 'candidates/new', component: CandidateFormComponent },
+  {
+    path: 'candidates', component: CandidateListComponent, children: [
+      { path: 'new', component: CandidateFormComponent },
+    ]
+  },
 ];
 
 @NgModule({
