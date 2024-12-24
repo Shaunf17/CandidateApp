@@ -84,11 +84,11 @@ namespace CandidateApp.Services
             {
                 await connection.OpenAsync();
                 var query = @"
-                                SELECT c.*, s.Name AS SkillName, s.ID AS SkillID, s.CreatedDate AS SkillCreatedDate, s.UpdatedDate AS SkillUpdatedDate
-                                FROM Candidate c
-                                LEFT JOIN CandidateSkill cs ON c.ID = cs.CandidateID
-                                LEFT JOIN Skill s ON cs.SkillID = s.ID
-                                WHERE c.ID = @ID";
+                            SELECT c.*, s.Name AS SkillName, s.ID AS SkillID, s.CreatedDate AS SkillCreatedDate, s.UpdatedDate AS SkillUpdatedDate
+                            FROM Candidate c
+                            LEFT JOIN CandidateSkill cs ON c.ID = cs.CandidateID
+                            LEFT JOIN Skill s ON cs.SkillID = s.ID
+                            WHERE c.ID = @ID";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ID", id);
@@ -141,10 +141,13 @@ namespace CandidateApp.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
+
                 var query = @"
-                                INSERT INTO Candidate (ID, FirstName, Surname, DateOfBirth, Address1, Town, Country, PostCode, PhoneHome, PhoneMobile, PhoneWork, CreatedDate, UpdatedDate)
-                                VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM Candidate), @FirstName, @Surname, @DateOfBirth, @Address1, @Town, @Country, @PostCode, @PhoneHome, @PhoneMobile, @PhoneWork, @CreatedDate, @UpdatedDate);
-                                SELECT SCOPE_IDENTITY();";
+                            DECLARE @NewID INT;
+                            SELECT @NewID = COALESCE(MAX(ID), 0) + 1 FROM Candidate;
+                            INSERT INTO Candidate (ID, FirstName, Surname, DateOfBirth, Address1, Town, Country, PostCode, PhoneHome, PhoneMobile, PhoneWork, CreatedDate, UpdatedDate)
+                            VALUES (@NewID, @FirstName, @Surname, @DateOfBirth, @Address1, @Town, @Country, @PostCode, @PhoneHome, @PhoneMobile, @PhoneWork, @CreatedDate, @UpdatedDate);
+                            SELECT @NewID;";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@FirstName", candidate.FirstName ?? (object)DBNull.Value);
@@ -159,7 +162,14 @@ namespace CandidateApp.Services
                     command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@CreatedDate", candidate.CreatedDate);
                     command.Parameters.AddWithValue("@UpdatedDate", candidate.UpdatedDate);
-                    var candidateId = Convert.ToInt32(await command.ExecuteScalarAsync());
+                    var result = await command.ExecuteScalarAsync();
+
+                    if (result == null || result == DBNull.Value)
+                    {
+                        throw new Exception("Failed to retrieve the inserted candidate ID.");
+                    }
+
+                    var candidateId = Convert.ToInt32(result);
 
                     if (candidate.Skills != null && candidate.Skills.Any())
                     {
@@ -168,12 +178,14 @@ namespace CandidateApp.Services
                             var skillId = await AddOrUpdateSkillAsync(skill, connection);
 
                             var candidateSkillQuery = @"
-                                    INSERT INTO CandidateSkill (CandidateID, SkillID)
-                                    VALUES (@CandidateID, @SkillID)";
+                                    INSERT INTO CandidateSkill (ID, CandidateID, SkillID, CreatedDate, UpdatedDate)
+                                    VALUES ((SELECT COALESCE(MAX(ID), 0) + 1 FROM CandidateSkill), @CandidateID, @SkillID, @CreatedDate, @UpdatedDate)";
                             using (var candidateSkillCommand = new SqlCommand(candidateSkillQuery, connection))
                             {
                                 candidateSkillCommand.Parameters.AddWithValue("@CandidateID", candidateId);
                                 candidateSkillCommand.Parameters.AddWithValue("@SkillID", skillId);
+                                candidateSkillCommand.Parameters.AddWithValue("@CreatedDate", candidate.CreatedDate);
+                                candidateSkillCommand.Parameters.AddWithValue("@UpdatedDate", candidate.UpdatedDate);
                                 await candidateSkillCommand.ExecuteNonQueryAsync();
                             }
                         }

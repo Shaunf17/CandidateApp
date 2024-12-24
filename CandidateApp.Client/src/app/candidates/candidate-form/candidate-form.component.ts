@@ -34,6 +34,8 @@ export class CandidateFormComponent implements OnInit {
       postcode: ['', Validators.required],
       country: ['', Validators.required],
       phoneMobile: ['', Validators.required],
+      phoneHome: [''],
+      phoneWork: [''],
       skills: [[]]
     });
   }
@@ -86,7 +88,15 @@ export class CandidateFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.candidateForm.valid) {
-      const candidate: Candidate = this.candidateForm.value;
+      const formValue = this.candidateForm.value;
+      const candidate: Candidate = {
+        ...formValue,
+        skills: formValue.skills.map((skillId: number) => {
+          const skill = this.skills.find(s => s.id === skillId);
+          return skill ? { id: skill.id, name: skill.name, createdDate: skill.createdDate, updatedDate: skill.updatedDate } : null;
+        }).filter((skill: Skill | null) => skill !== null) as Skill[]
+      };
+
       console.log('Submitting candidate:', candidate);
 
       if (this.candidateId) {
