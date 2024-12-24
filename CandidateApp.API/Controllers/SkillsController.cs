@@ -17,9 +17,9 @@ namespace CandidateApp.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Skill>> GetAllSkills()
+        public async Task<IActionResult> GetAllSkills()
         {
-            var skills = _skillRepository.GetAllSkills();
+            var skills = await _skillRepository.GetAllSkillsAsync();
             return Ok(skills);
         }
     }

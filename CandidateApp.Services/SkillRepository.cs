@@ -14,18 +14,18 @@ namespace CandidateApp.Services
             _connectionString = connectionString;
         }
 
-        public IEnumerable<Skill> GetAllSkills()
+        public async Task<IEnumerable<Skill>> GetAllSkillsAsync()
         {
             var skills = new List<Skill>();
 
             using (var connection = new SqlConnection(_connectionString))
             {
-                connection.Open();
+                await connection.OpenAsync();
                 var query = "SELECT * FROM Skill";
                 var command = new SqlCommand(query, connection);
-                using (var reader = command.ExecuteReader())
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         var skill = new Skill
                         {

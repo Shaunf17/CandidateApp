@@ -9,6 +9,6 @@ namespace CandidateApp.Services.Interfaces
 {
     public interface ISkillRepository
     {
-        public IEnumerable<Skill> GetAllSkills();
+        public Task<IEnumerable<Skill>> GetAllSkillsAsync();
     }
 }
