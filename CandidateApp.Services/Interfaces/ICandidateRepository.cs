@@ -9,10 +9,10 @@ namespace CandidateApp.Services.Interfaces
 {
     public interface ICandidateRepository
     {
-        IEnumerable<Candidate> GetAllCandidates();
-        Candidate GetCandidateById(int id);
-        void AddCandidate(Candidate candidate);
-        void UpdateCandidate(Candidate candidate);
-        void DeleteCandidate(int id);
+        Task<IEnumerable<Candidate>> GetAllCandidatesAsync();
+        Task<Candidate> GetCandidateByIdAsync(int id);
+        Task AddCandidateAsync(Candidate candidate);
+        Task UpdateCandidateAsync(Candidate candidate);
+        Task DeleteCandidateAsync(int id);
     }
 }

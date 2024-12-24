@@ -16,51 +16,52 @@ namespace CandidateApp.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var candidates = _candidateRepository.GetAllCandidates();
+            var candidates = await _candidateRepository.GetAllCandidatesAsync();
             return Ok(candidates);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetCandidateByID(int id)
+        public async Task<IActionResult> GetCandidateByID(int id)
         {
-            var candidate = _candidateRepository.GetCandidateById(id);
+            var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
+            if (candidate == null) return NotFound();
             return Ok(candidate);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Candidate candidate)
+        public async Task<IActionResult> Create([FromBody] Candidate candidate)
         {
             if (candidate == null) return BadRequest();
 
             candidate.CreatedDate = DateTime.UtcNow;
             candidate.UpdatedDate = DateTime.UtcNow;
-            _candidateRepository.AddCandidate(candidate);
+            await _candidateRepository.AddCandidateAsync(candidate);
 
             return Ok();
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Candidate candidate)
+        public async Task<IActionResult> Update(int id, [FromBody] Candidate candidate)
         {
             if (candidate == null || candidate.ID != id) return BadRequest();
 
-            var existingCandidate = _candidateRepository.GetCandidateById(id);
+            var existingCandidate = await _candidateRepository.GetCandidateByIdAsync(id);
             if (existingCandidate == null) return NotFound();
 
             candidate.UpdatedDate = DateTime.UtcNow;
-            _candidateRepository.UpdateCandidate(candidate);
+            await _candidateRepository.UpdateCandidateAsync(candidate);
 
             return Ok();
         }
 
         [HttpPost("{id}/skills")]
-        public IActionResult AddSkill(int id, [FromBody] Skill skill)
+        public async Task<IActionResult> AddSkill(int id, [FromBody] Skill skill)
         {
             if (skill == null) return BadRequest();
 
-            var candidate = _candidateRepository.GetCandidateById(id);
+            var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
             if (candidate == null) return NotFound();
 
             if (candidate.Skills == null)
@@ -73,15 +74,15 @@ namespace CandidateApp.API.Controllers
             candidate.Skills.Add(skill);
             candidate.UpdatedDate = DateTime.UtcNow;
 
-            _candidateRepository.UpdateCandidate(candidate);
+            await _candidateRepository.UpdateCandidateAsync(candidate);
 
             return Ok();
         }
 
         [HttpDelete("{id}/skills/{skillId}")]
-        public IActionResult RemoveSkill(int id, int skillId)
+        public async Task<IActionResult> RemoveSkill(int id, int skillId)
         {
-            var candidate = _candidateRepository.GetCandidateById(id);
+            var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
             if (candidate == null) return NotFound();
 
             var skill = candidate.Skills?.FirstOrDefault(s => s.ID == skillId);
@@ -90,7 +91,7 @@ namespace CandidateApp.API.Controllers
             candidate.Skills.Remove(skill);
             candidate.UpdatedDate = DateTime.UtcNow;
 
-            _candidateRepository.UpdateCandidate(candidate);
+            await _candidateRepository.UpdateCandidateAsync(candidate);
 
             return Ok();
         }

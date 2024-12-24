@@ -39,25 +39,33 @@ export class CandidateFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadSkills();
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.candidateId = +id;
-        this.loadCandidate(this.candidateId);
+
+        // Load skills first, then the candidate
+        this.loadSkills().then(() => {
+          this.loadCandidate(this.candidateId!);
+        });
+      } else {
+        this.loadSkills();
       }
     });
   }
 
-  loadSkills(): void {
-    // Load skills from the service
-    this.skillService.getSkills().subscribe({
-      next: (data) => {
-        this.skills = data;
-      },
-      error: (err) => {
-        console.error('Failed to load skills', err);
-      }
+  loadSkills(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.skillService.getSkills().subscribe({
+        next: (data) => {
+          this.skills = data;
+          resolve();
+        },
+        error: (err) => {
+          console.error('Failed to load skills', err);
+          reject(err);
+        }
+      });
     });
   }
 
