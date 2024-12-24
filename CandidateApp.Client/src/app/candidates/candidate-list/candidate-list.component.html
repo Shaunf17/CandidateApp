@@ -5,6 +5,11 @@
         <a [routerLink]="['/candidates/new']" mat-raised-button color="primary">Add Candidate</a>
     </div>
 
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+
     <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8">
         <!-- First Name Column -->
         <ng-container matColumnDef="firstName">

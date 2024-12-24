@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System.Data;
+using System.Data.SqlClient;
 using CandidateApp.Domain.Models;
 using CandidateApp.Services.Interfaces;
 
@@ -199,66 +200,94 @@ namespace CandidateApp.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var query = @"
-                        UPDATE Candidate SET FirstName = @FirstName, Surname = @Surname, DateOfBirth = @DateOfBirth,
-                        Address1 = @Address1, Town = @Town, Country = @Country, PostCode = @PostCode, PhoneHome = @PhoneHome,
-                        PhoneMobile = @PhoneMobile, PhoneWork = @PhoneWork, UpdatedDate = @UpdatedDate WHERE ID = @ID";
-                using (var command = new SqlCommand(query, connection))
+                using (var transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("@FirstName", candidate.FirstName);
-                    command.Parameters.AddWithValue("@Surname", candidate.Surname);
-                    command.Parameters.AddWithValue("@DateOfBirth", candidate.DateOfBirth);
-                    command.Parameters.AddWithValue("@Address1", candidate.Address1);
-                    command.Parameters.AddWithValue("@Town", candidate.Town);
-                    command.Parameters.AddWithValue("@Country", candidate.Country);
-                    command.Parameters.AddWithValue("@PostCode", candidate.PostCode);
-                    command.Parameters.AddWithValue("@PhoneHome", candidate.PhoneHome);
-                    command.Parameters.AddWithValue("@PhoneMobile", candidate.PhoneMobile);
-                    command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork);
-                    command.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
-                    command.Parameters.AddWithValue("@ID", candidate.ID);
-                    await command.ExecuteNonQueryAsync();
-
-                    var deleteSkillsQuery = "DELETE FROM CandidateSkill WHERE CandidateID = @CandidateID";
-                    using (var deleteSkillsCommand = new SqlCommand(deleteSkillsQuery, connection))
+                    try
                     {
-                        deleteSkillsCommand.Parameters.AddWithValue("@CandidateID", candidate.ID);
-                        await deleteSkillsCommand.ExecuteNonQueryAsync();
-                    }
-
-                    if (candidate.Skills != null && candidate.Skills.Any())
-                    {
-                        foreach (var skill in candidate.Skills)
+                        var query = @"
+                    UPDATE Candidate SET FirstName = @FirstName, Surname = @Surname, DateOfBirth = @DateOfBirth,
+                    Address1 = @Address1, Town = @Town, Country = @Country, PostCode = @PostCode, PhoneHome = @PhoneHome,
+                    PhoneMobile = @PhoneMobile, PhoneWork = @PhoneWork, UpdatedDate = @UpdatedDate WHERE ID = @ID";
+                        using (var command = new SqlCommand(query, connection, transaction))
                         {
-                            var skillId = await AddOrUpdateSkillAsync(skill, connection);
+                            command.Parameters.AddWithValue("@FirstName", candidate.FirstName);
+                            command.Parameters.AddWithValue("@Surname", candidate.Surname);
+                            command.Parameters.AddWithValue("@DateOfBirth", candidate.DateOfBirth);
+                            command.Parameters.AddWithValue("@Address1", candidate.Address1);
+                            command.Parameters.AddWithValue("@Town", candidate.Town);
+                            command.Parameters.AddWithValue("@Country", candidate.Country);
+                            command.Parameters.AddWithValue("@PostCode", candidate.PostCode);
+                            command.Parameters.AddWithValue("@PhoneHome", candidate.PhoneHome);
+                            command.Parameters.AddWithValue("@PhoneMobile", candidate.PhoneMobile);
+                            command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork);
+                            command.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                            command.Parameters.AddWithValue("@ID", candidate.ID);
+                            await command.ExecuteNonQueryAsync();
+                        }
 
-                            var candidateSkillQuery = @"
-                                    INSERT INTO CandidateSkill (CandidateID, SkillID)
-                                    VALUES (@CandidateID, @SkillID)";
-                            using (var candidateSkillCommand = new SqlCommand(candidateSkillQuery, connection))
+                        // Get existing skills for the candidate
+                        var existingSkillsQuery = "SELECT SkillID FROM CandidateSkill WHERE CandidateID = @CandidateID";
+                        var existingSkillIds = new List<int>();
+                        using (var existingSkillsCommand = new SqlCommand(existingSkillsQuery, connection, transaction))
+                        {
+                            existingSkillsCommand.Parameters.AddWithValue("@CandidateID", candidate.ID);
+                            using (var reader = await existingSkillsCommand.ExecuteReaderAsync())
                             {
-                                candidateSkillCommand.Parameters.AddWithValue("@CandidateID", candidate.ID);
-                                candidateSkillCommand.Parameters.AddWithValue("@SkillID", skillId);
-                                await candidateSkillCommand.ExecuteNonQueryAsync();
+                                while (await reader.ReadAsync())
+                                {
+                                    existingSkillIds.Add((int)reader["SkillID"]);
+                                }
                             }
                         }
+
+                        // Determine skills to add and remove
+                        var newSkillIds = candidate.Skills.Select(s => s.ID).ToList();
+                        var skillsToAdd = newSkillIds.Except(existingSkillIds).ToList();
+                        var skillsToRemove = existingSkillIds.Except(newSkillIds).ToList();
+
+                        // Remove skills
+                        if (skillsToRemove.Any())
+                        {
+                            var removeSkillsQuery = $"DELETE FROM CandidateSkill WHERE CandidateID = @CandidateID AND SkillID IN ({string.Join(",", skillsToRemove)})";
+                            using (var removeSkillsCommand = new SqlCommand(removeSkillsQuery, connection, transaction))
+                            {
+                                removeSkillsCommand.Parameters.AddWithValue("@CandidateID", candidate.ID);
+                                removeSkillsCommand.Parameters.AddWithValue("@SkillIDs", string.Join(",", skillsToRemove));
+                                await removeSkillsCommand.ExecuteNonQueryAsync();
+                            }
+                        }
+
+                        // Add new skills
+                        if (skillsToAdd.Any())
+                        {
+                            var addSkillsQuery = @"
+                        INSERT INTO CandidateSkill (ID, CandidateID, SkillID, CreatedDate, UpdatedDate)
+                        VALUES ((SELECT COALESCE(MAX(ID), 0) + 1 FROM CandidateSkill), @CandidateID, @SkillID, @CreatedDate, @UpdatedDate)";
+                            using (var addSkillsCommand = new SqlCommand(addSkillsQuery, connection, transaction))
+                            {
+                                foreach (var skillId in skillsToAdd)
+                                {
+                                    addSkillsCommand.Parameters.Clear();
+                                    addSkillsCommand.Parameters.AddWithValue("@CandidateID", candidate.ID);
+                                    addSkillsCommand.Parameters.AddWithValue("@SkillID", skillId);
+                                    addSkillsCommand.Parameters.AddWithValue("@CreatedDate", DateTime.Now);
+                                    addSkillsCommand.Parameters.AddWithValue("@UpdatedDate", DateTime.Now);
+                                    await addSkillsCommand.ExecuteNonQueryAsync();
+                                }
+                            }
+                        }
+
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                        throw;
                     }
                 }
             }
         }
 
-        public async Task DeleteCandidateAsync(int id)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand("DELETE FROM Candidate WHERE ID = @ID", connection))
-                {
-                    command.Parameters.AddWithValue("@ID", id);
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
-        }
 
         private async Task<int> AddOrUpdateSkillAsync(Skill skill, SqlConnection connection)
         {
@@ -280,6 +309,11 @@ namespace CandidateApp.Services
                 skillCommand.Parameters.AddWithValue("@UpdatedDate", skill.UpdatedDate);
                 return Convert.ToInt32(await skillCommand.ExecuteScalarAsync());
             }
+        }
+
+        public Task DeleteCandidateAsync(int id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

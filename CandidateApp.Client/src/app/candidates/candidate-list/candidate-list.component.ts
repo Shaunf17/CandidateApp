@@ -17,6 +17,7 @@ export class CandidateListComponent implements OnInit, OnDestroy {
   mainColumns: string[] = ['firstName', 'surname', 'dateOfBirth', 'address1', 'town', 'country', 'phoneMobile', 'actions'];
   dataSource = new MatTableDataSource<Candidate>([]);
   private subscriptions: Subscription = new Subscription();
+  errorMessage: string | null = null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -38,6 +39,7 @@ export class CandidateListComponent implements OnInit, OnDestroy {
         console.log('Candidates loaded:', data);
       },
       error: (err) => {
+        this.errorMessage = 'Failed to load candidates. Please try again later.'; 
         console.error('Failed to load candidates', err);
       }
     });

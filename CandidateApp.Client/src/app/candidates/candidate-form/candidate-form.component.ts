@@ -31,7 +31,7 @@ export class CandidateFormComponent implements OnInit {
       dateOfBirth: ['', Validators.required],
       address1: ['', Validators.required],
       town: ['', Validators.required],
-      postcode: ['', Validators.required],
+      postCode: ['', Validators.required],
       country: ['', Validators.required],
       phoneMobile: ['', Validators.required],
       phoneHome: [''],
