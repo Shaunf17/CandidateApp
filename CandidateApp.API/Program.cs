@@ -44,7 +44,7 @@ namespace CandidateApp.API
                 app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("swagger/v1/swagger.json", "Candidate API v1");
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Candidate API v1");
                 });
             }
 

@@ -10,15 +10,25 @@ mat-header-cell, mat-cell {
   padding: 8px;
 }
 
+mat-row tr {
+  
+}
+
 button {
   margin-right: 8px;
 }
 
 .skill {
     padding-bottom: 20px !important;
+    background-color: #ecdbff;
 }
 
 .candidate-row td {
     border-bottom: none;
     margin-bottom: 0px;
+}
+
+.options {
+    margin-left: 8px;
+    margin-bottom: 10px;
 }

@@ -1,7 +1,9 @@
 <div class="container">
     <h2>Candidate List</h2>
 
-    <a [routerLink]="['/candidates/new']" mat-raised-button color="primary">Add Candidate</a>
+    <div class="options">
+        <a [routerLink]="['/candidates/new']" mat-raised-button color="primary">Add Candidate</a>
+    </div>
 
     <table mat-table [dataSource]="dataSource" multiTemplateDataRows class="mat-elevation-z8">
         <!-- First Name Column -->

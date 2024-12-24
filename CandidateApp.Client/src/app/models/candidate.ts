@@ -1,6 +1,7 @@
 import { Skill } from "./skill";
 
 export class Candidate {
+  id: number;
   firstName: string;
   surname: string;
   dateOfBirth: Date;
@@ -16,6 +17,7 @@ export class Candidate {
   skills: Skill[]
 
   constructor(
+    id: number,
     firstName: string,
     surname: string,
     dateOfBirth: Date,
@@ -30,6 +32,7 @@ export class Candidate {
     updatedDate: Date,
     skills: Skill[]
   ) {
+    this.id = id;
     this.firstName = firstName;
     this.surname = surname;
     this.dateOfBirth = dateOfBirth;

@@ -117,20 +117,20 @@ namespace CandidateApp.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                var command = new SqlCommand(
-                    "INSERT INTO Candidate (FirstName, Surname, DateOfBirth, Address1, Town, Country, PostCode, PhoneHome, PhoneMobile, PhoneWork, CreatedDate, UpdatedDate) " +
-                    "VALUES (@FirstName, @Surname, @DateOfBirth, @Address1, @Town, @Country, @PostCode, @PhoneHome, @PhoneMobile, @PhoneWork, @CreatedDate, @UpdatedDate)",
-                    connection);
-                command.Parameters.AddWithValue("@FirstName", candidate.FirstName);
-                command.Parameters.AddWithValue("@Surname", candidate.Surname);
+                var query = @"
+                            INSERT INTO Candidate (ID, FirstName, Surname, DateOfBirth, Address1, Town, Country, PostCode, PhoneHome, PhoneMobile, PhoneWork, CreatedDate, UpdatedDate)
+                            VALUES ((SELECT COALESCE(MAX(id), 0) + 1 FROM Candidate), @FirstName, @Surname, @DateOfBirth, @Address1, @Town, @Country, @PostCode, @PhoneHome, @PhoneMobile, @PhoneWork, @CreatedDate, @UpdatedDate)";
+                var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@FirstName", candidate.FirstName ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Surname", candidate.Surname ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@DateOfBirth", candidate.DateOfBirth);
-                command.Parameters.AddWithValue("@Address1", candidate.Address1);
-                command.Parameters.AddWithValue("@Town", candidate.Town);
-                command.Parameters.AddWithValue("@Country", candidate.Country);
-                command.Parameters.AddWithValue("@PostCode", candidate.PostCode);
-                command.Parameters.AddWithValue("@PhoneHome", candidate.PhoneHome);
-                command.Parameters.AddWithValue("@PhoneMobile", candidate.PhoneMobile);
-                command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork);
+                command.Parameters.AddWithValue("@Address1", candidate.Address1 ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Town", candidate.Town ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Country", candidate.Country ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PostCode", candidate.PostCode ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PhoneHome", candidate.PhoneHome ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PhoneMobile", candidate.PhoneMobile ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@PhoneWork", candidate.PhoneWork ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@CreatedDate", candidate.CreatedDate);
                 command.Parameters.AddWithValue("@UpdatedDate", candidate.UpdatedDate);
                 command.ExecuteNonQuery();
@@ -142,11 +142,11 @@ namespace CandidateApp.Services
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                var command = new SqlCommand(
-                    "UPDATE Candidate SET FirstName = @FirstName, Surname = @Surname, DateOfBirth = @DateOfBirth, " +
-                    "Address1 = @Address1, Town = @Town, Country = @Country, PostCode = @PostCode, PhoneHome = @PhoneHome, " +
-                    "PhoneMobile = @PhoneMobile, PhoneWork = @PhoneWork, UpdatedDate = @UpdatedDate WHERE ID = @ID",
-                    connection);
+                var query = @"
+                    UPDATE Candidate SET FirstName = @FirstName, Surname = @Surname, DateOfBirth = @DateOfBirth,
+                    Address1 = @Address1, Town = @Town, Country = @Country, PostCode = @PostCode, PhoneHome = @PhoneHome,
+                    PhoneMobile = @PhoneMobile, PhoneWork = @PhoneWork, UpdatedDate = @UpdatedDate WHERE ID = @ID";
+                var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@FirstName", candidate.FirstName);
                 command.Parameters.AddWithValue("@Surname", candidate.Surname);
                 command.Parameters.AddWithValue("@DateOfBirth", candidate.DateOfBirth);
