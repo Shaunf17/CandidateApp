@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CandidateService } from '../../services/candidate.service';
@@ -9,11 +9,10 @@ import { Candidate } from '../../models/candidate';
 @Component({
   selector: 'app-candidate-form',
   standalone: false,
-  
   templateUrl: './candidate-form.component.html',
   styleUrl: './candidate-form.component.css'
 })
-export class CandidateFormComponent {
+export class CandidateFormComponent implements OnInit {
   candidateForm: FormGroup;
   skills: Skill[] = [];
   candidateId: number | null = null;
@@ -41,6 +40,13 @@ export class CandidateFormComponent {
 
   ngOnInit(): void {
     this.loadSkills();
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.candidateId = +id;
+        this.loadCandidate(this.candidateId);
+      }
+    });
   }
 
   loadSkills(): void {
@@ -54,6 +60,21 @@ export class CandidateFormComponent {
       }
     });
   }
+
+  loadCandidate(id: number): void {
+  this.candidateService.getCandidateById(id).subscribe({
+    next: (candidate) => {
+      this.candidateForm.patchValue(candidate);
+      
+      // Ensure skills are mapped to their IDs
+      const skillIds = candidate.skills.map((skill: Skill) => skill.id);
+      this.candidateForm.get('skills')?.setValue(skillIds);
+    },
+    error: (err) => {
+      console.error('Failed to load candidate', err);
+    }
+  });
+}
 
   onSubmit(): void {
     if (this.candidateForm.valid) {

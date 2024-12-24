@@ -52,7 +52,7 @@
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef> Actions </th>
             <td mat-cell *matCellDef="let candidate">
-                <!-- <button mat-button color="primary" (click)="toggleRow(candidate)">Toggle Skills</button> -->
+                <a [routerLink]="['/candidates', candidate.id, 'edit']" mat-button color="primary">Edit</a>
             </td>
         </ng-container>
 

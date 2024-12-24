@@ -51,10 +51,6 @@ export class CandidateListComponent implements OnInit, OnDestroy {
     return candidate.skills.map(skill => skill.name).join(', ');
   }
 
-  editCandidate(candidate: Candidate): void {
-    // Implement edit logic here
-  }
-
   deleteCandidate(id: number): void {
     // Implement delete logic here
   }

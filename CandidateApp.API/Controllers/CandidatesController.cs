@@ -22,6 +22,13 @@ namespace CandidateApp.API.Controllers
             return Ok(candidates);
         }
 
+        [HttpGet("{id}")]
+        public IActionResult GetCandidateByID(int id)
+        {
+            var candidate = _candidateRepository.GetCandidateById(id);
+            return Ok(candidate);
+        }
+
         [HttpPost]
         public IActionResult Create([FromBody] Candidate candidate)
         {
@@ -43,6 +50,46 @@ namespace CandidateApp.API.Controllers
             if (existingCandidate == null) return NotFound();
 
             candidate.UpdatedDate = DateTime.UtcNow;
+            _candidateRepository.UpdateCandidate(candidate);
+
+            return Ok();
+        }
+
+        [HttpPost("{id}/skills")]
+        public IActionResult AddSkill(int id, [FromBody] Skill skill)
+        {
+            if (skill == null) return BadRequest();
+
+            var candidate = _candidateRepository.GetCandidateById(id);
+            if (candidate == null) return NotFound();
+
+            if (candidate.Skills == null)
+            {
+                candidate.Skills = new List<Skill>();
+            }
+
+            skill.CreatedDate = DateTime.UtcNow;
+            skill.UpdatedDate = DateTime.UtcNow;
+            candidate.Skills.Add(skill);
+            candidate.UpdatedDate = DateTime.UtcNow;
+
+            _candidateRepository.UpdateCandidate(candidate);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}/skills/{skillId}")]
+        public IActionResult RemoveSkill(int id, int skillId)
+        {
+            var candidate = _candidateRepository.GetCandidateById(id);
+            if (candidate == null) return NotFound();
+
+            var skill = candidate.Skills?.FirstOrDefault(s => s.ID == skillId);
+            if (skill == null) return NotFound();
+
+            candidate.Skills.Remove(skill);
+            candidate.UpdatedDate = DateTime.UtcNow;
+
             _candidateRepository.UpdateCandidate(candidate);
 
             return Ok();

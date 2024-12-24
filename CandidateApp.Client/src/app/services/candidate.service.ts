@@ -17,6 +17,10 @@ export class CandidateService {
     return this.http.get<any[]>(this.apiUrl);
   }
 
+  getCandidateById(id: number): Observable<Candidate> {
+    return this.http.get<Candidate>(`${this.apiUrl}/${id}`);
+  }
+
   addCandidate(candidate: Candidate): Observable<void> {
     return this.http.post<void>(this.apiUrl, candidate);
   }
