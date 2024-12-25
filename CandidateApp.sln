@@ -13,11 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateApp.Domain", "Cand
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CandidateApp.Tests", "CandidateApp.Tests\CandidateApp.Tests.csproj", "{57B994D5-C5BF-4357-8C32-8D0F3650AEC4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{A04A50D8-DDDF-4BCE-8E2C-BB8E735BD7FF}"
-	ProjectSection(SolutionItems) = preProject
-		..\..\..\Downloads\candidateAppUMLHighLevel.png = ..\..\..\Downloads\candidateAppUMLHighLevel.png
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
